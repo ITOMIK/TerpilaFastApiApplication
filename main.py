@@ -113,6 +113,58 @@ async def __get_chart(name: str):
     return result
 
 
+@app.get("/SearchAlbums/{albumname}")
+async def __search_album(albumname):
+    base_url = "http://ws.audioscrobbler.com/2.0/"
+    method = "album.search"
+    params = {
+        "album": albumname,
+        "api_key": LASTFM_API_KEY,
+        "method": method,
+        "format": "json"
+    }
+    try:
+        response = requests.get(base_url, params=params)
+        response.raise_for_status()  # Raise an HTTPError for bad responses
+
+        data = response.json()
+        result = data["results"]["albummatches"]["album"]
+        print(data)
+        _result = []
+        if len(result) > 0:
+            max_ = 0
+            for i in result:
+                max_ += 1
+                answ = i["name"] + " " + i["artist"]
+                _result.append(answ)
+                if (max_ > 3):
+                    break
+            return _result
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error during API request: {e}")
+        return None
+
+@app.get("/SearchTrack/{track_name}")
+async def __search_track(track_name):
+    params = {
+        "method": "track.search",
+        "track": track_name,
+        "api_key": LASTFM_API_KEY,
+        "format": "json"
+    }
+    try:
+        response = requests.get(LASTFM_API_URL, params=params)
+        response.raise_for_status()  # Проверяем статус ответа
+        data = response.json()
+        # Извлекаем имя исполнителя и название первого трека из результатов поиска
+        print(data["results"]["trackmatches"]["track"])
+        result = [i["artist"]+" "+i["name"] for i in data["results"]["trackmatches"]["track"]]
+        return result[0:4]
+    except (requests.exceptions.RequestException, IndexError) as e:
+        print("Error:", e)
+        return None
+
 async def get_youtube_link(name):
     if name:
         videos_search = VideosSearch(f"{name}", limit=1)
