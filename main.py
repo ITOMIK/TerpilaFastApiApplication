@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-with open("/.env") as f:
+with open(".env") as f:
     for line in f:
         k, v = line.split("=")
         os.environ[k] = v
