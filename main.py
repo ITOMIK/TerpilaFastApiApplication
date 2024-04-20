@@ -9,7 +9,6 @@ import youtube_dl
 from youtubesearchpython import VideosSearch
 from fastapi.middleware.cors import CORSMiddleware
 
-
 app = FastAPI()
 
 with open(".env") as f:
@@ -17,7 +16,7 @@ with open(".env") as f:
         k, v = line.split("=")
         os.environ[k] = v
 
-LASTFM_API_KEY = os.environ.get("AWS_API_KEY").strip()
+LASTFM_API_KEY = os.environ.get("LASTFM_API_KEY").strip()
 LASTFM_API_URL = "http://ws.audioscrobbler.com/2.0/"
 
 app.add_middleware(
@@ -47,8 +46,10 @@ async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
     response.headers["Content-Security-Policy"] = "default-src *; connect-src *; script-src *; object-src *;"
     response.headers["X-Content-Security-Policy"] = "default-src *; connect-src *; script-src *; object-src *;"
-    response.headers["X-Webkit-CSP"] = "default-src *; connect-src *; script-src 'unsafe-inline' 'unsafe-eval' *; object-src *;"
+    response.headers[
+        "X-Webkit-CSP"] = "default-src *; connect-src *; script-src 'unsafe-inline' 'unsafe-eval' *; object-src *;"
     return response
+
 
 @app.get("/")
 async def root():
@@ -155,6 +156,7 @@ async def __search_album(albumname):
         print(f"Error during API request: {e}")
         return None
 
+
 @app.get("/SearchTrack/{track_name}")
 async def __search_track(track_name):
     params = {
@@ -169,11 +171,12 @@ async def __search_track(track_name):
         data = response.json()
         # Извлекаем имя исполнителя и название первого трека из результатов поиска
         print(data["results"]["trackmatches"]["track"])
-        result = [i["artist"]+" "+i["name"] for i in data["results"]["trackmatches"]["track"]]
+        result = [i["artist"] + " " + i["name"] for i in data["results"]["trackmatches"]["track"]]
         return result[0:4]
     except (requests.exceptions.RequestException, IndexError) as e:
         print("Error:", e)
         return None
+
 
 async def get_youtube_link(name):
     if name:
