@@ -21,7 +21,7 @@ LASTFM_API_URL = "http://ws.audioscrobbler.com/2.0/"
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174"],
+    allow_origins=["http://localhost:5173", "http://localhost:5174", "https://music-application-react-terpila.onrender.com"],
     allow_credentials=True,
     allow_methods=["GET"],
     allow_headers=["*"],
