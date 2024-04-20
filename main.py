@@ -12,12 +12,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-with open(".env") as f:
+with open("/.env") as f:
     for line in f:
         k, v = line.split("=")
         os.environ[k] = v
 
-LASTFM_API_KEY = os.environ.get("LASTFM_API_KEY").strip()
+LASTFM_API_KEY = os.environ.get("AWS_API_KEY").strip()
 LASTFM_API_URL = "http://ws.audioscrobbler.com/2.0/"
 
 app.add_middleware(
