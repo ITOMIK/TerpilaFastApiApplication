@@ -2,11 +2,13 @@ import os
 import uuid
 import random
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 import requests
 import youtube_dl
 from youtubesearchpython import VideosSearch
 from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
 
@@ -20,7 +22,7 @@ LASTFM_API_URL = "http://ws.audioscrobbler.com/2.0/"
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://localhost:5173", "http://localhost:5174"],
     allow_credentials=True,
     allow_methods=["GET"],
     allow_headers=["*"],
@@ -39,6 +41,14 @@ class Song:
         self.artist = _artist
         self.url = _url
 
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["Content-Security-Policy"] = "default-src *; connect-src *; script-src *; object-src *;"
+    response.headers["X-Content-Security-Policy"] = "default-src *; connect-src *; script-src *; object-src *;"
+    response.headers["X-Webkit-CSP"] = "default-src *; connect-src *; script-src 'unsafe-inline' 'unsafe-eval' *; object-src *;"
+    return response
 
 @app.get("/")
 async def root():
