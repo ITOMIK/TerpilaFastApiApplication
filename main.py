@@ -72,10 +72,15 @@ async def _get_youtube_link(name: str):
 
 @app.get("/GetMp3Link/{url}")
 async def _get_mp3_link(url: str):
+    headers = {
+        "Access-Control-Allow-Origin": "*",  # Разрешить доступ из любых источников
+        "Access-Control-Allow-Methods": "GET, POST",  # Разрешить только GET и POST методы
+        "Access-Control-Allow-Headers": "X-Custom-Header",  # Разрешить только определённые заголовки
+    }
     url = "https://www.youtube.com/watch?v=" + url
     song_info = youtube_dl.YoutubeDL({'format': 'bestaudio/best', 'verbose': True}).extract_info(url, download=False)
     _url = song_info['formats'][0]['url']
-    return {"url": _url}
+    return JSONResponse({"url": _url}, headers=headers)
 
 
 @app.get("/GetChart")
