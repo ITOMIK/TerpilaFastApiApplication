@@ -25,7 +25,7 @@ class ShahidBaseIE(AWSIE):
             k, v = line.split("=")
             os.environ[k] = v
     _AWS_PROXY_HOST = 'api2.shahid.net'
-    _AWS_API_KEY = os.environ.get("AWS_API_KEY").strip()
+    _AWS_API_KEY = os.environ.get("LASTFM_API_KEY").strip()
     SECRET_KEY = os.environ.get("SECRET_KEY").strip()
     _VALID_URL_BASE = r'https?://shahid\.mbc\.net/[a-z]{2}/'
 
