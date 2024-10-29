@@ -77,10 +77,30 @@ async def _get_mp3_link(url: str):
         "Access-Control-Allow-Methods": "GET, POST",  # Разрешить только GET и POST методы
         "Access-Control-Allow-Headers": "X-Custom-Header",  # Разрешить только определённые заголовки
     }
+
+    # Формируем полный URL для YouTube видео
     url = "https://www.youtube.com/watch?v=" + url
+
+    # Извлекаем информацию о видео с наилучшим аудио-форматом
     song_info = yt_dlp.YoutubeDL({'format': 'bestaudio/best', 'verbose': True}).extract_info(url, download=False)
-    _url = song_info['formats'][5]['url']
-    return JSONResponse({"url": _url}, headers=headers)
+
+    # Перебираем форматы и находим первый подходящий для браузера
+    _url = None
+    for fmt in song_info['formats']:
+        # Используем get() с значениями по умолчанию
+        acodec = fmt.get('acodec', 'none')
+        vcodec = fmt.get('vcodec', 'none')
+        ext = fmt.get('ext', '')
+
+        # Проверяем, что есть аудио- и видео-кодек (или только аудио для mp3/аудио)
+        if acodec != 'none' and (vcodec == 'none' or ext in ['mp4', 'webm']):
+            _url = fmt['url']
+            break  # Останавливаем поиск на первом найденном формате
+
+    if _url:
+        return JSONResponse({"url": _url}, headers=headers)
+    else:
+        return JSONResponse({"error": "No playable format found"}, headers=headers)
 
 
 @app.get("/GetChart")
