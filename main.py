@@ -79,7 +79,7 @@ async def _get_mp3_link(url: str):
     }
     url = "https://www.youtube.com/watch?v=" + url
     song_info = yt_dlp.YoutubeDL({'format': 'bestaudio/best', 'verbose': True}).extract_info(url, download=False)
-    _url = song_info['formats'][0]['url']
+    _url = song_info['formats'][5]['url']
     return JSONResponse({"url": _url}, headers=headers)
 
 
@@ -189,7 +189,7 @@ async def get_youtube_link(name):
         results = videos_search.result()
 
         if 'result' in results and results['result']:
-            youtube_link = results['result'][0]['link']
+            youtube_link = results['result'][5]['link']
             return youtube_link.split("=")[1]
     return None
 
