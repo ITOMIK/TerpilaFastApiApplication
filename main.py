@@ -5,7 +5,7 @@ import random
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import requests
-import youtube_dl
+import yt_dlp
 from youtubesearchpython import VideosSearch
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -78,7 +78,7 @@ async def _get_mp3_link(url: str):
         "Access-Control-Allow-Headers": "X-Custom-Header",  # Разрешить только определённые заголовки
     }
     url = "https://www.youtube.com/watch?v=" + url
-    song_info = youtube_dl.YoutubeDL({'format': 'bestaudio/best', 'verbose': True}).extract_info(url, download=False)
+    song_info = yt_dlp.YoutubeDL({'format': 'bestaudio/best', 'verbose': True}).extract_info(url, download=False)
     _url = song_info['formats'][0]['url']
     return JSONResponse({"url": _url}, headers=headers)
 
