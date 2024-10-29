@@ -189,7 +189,7 @@ async def get_youtube_link(name):
         results = videos_search.result()
 
         if 'result' in results and results['result']:
-            youtube_link = results['result'][5]['link']
+            youtube_link = results['result'][0]['link']
             return youtube_link.split("=")[1]
     return None
 
