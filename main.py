@@ -82,7 +82,7 @@ async def _get_mp3_link(url: str):
     url = "https://www.youtube.com/watch?v=" + url
 
     # Извлекаем информацию о видео с наилучшим аудио-форматом
-    song_info = yt_dlp.YoutubeDL({'format': 'bestaudio/best', 'verbose': True}).extract_info(url, download=False)
+    song_info = yt_dlp.YoutubeDL({'format': 'bestaudio/best', 'verbose': True,'cookiesfrombrowser': ('firefox',)}).extract_info(url, download=False)
 
     # Перебираем форматы и находим первый подходящий для браузера
     _url = None
