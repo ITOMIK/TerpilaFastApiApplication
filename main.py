@@ -73,34 +73,42 @@ async def _get_youtube_link(name: str):
 @app.get("/GetMp3Link/{url}")
 async def _get_mp3_link(url: str):
     headers = {
-        "Access-Control-Allow-Origin": "*",  # Разрешить доступ из любых источников
-        "Access-Control-Allow-Methods": "GET, POST",  # Разрешить только GET и POST методы
-        "Access-Control-Allow-Headers": "X-Custom-Header",  # Разрешить только определённые заголовки
+        "Access-Control-Allow-Origin": "*",  # Allow access from any source
+        "Access-Control-Allow-Methods": "GET, POST",  # Allow GET and POST methods
+        "Access-Control-Allow-Headers": "X-Custom-Header",  # Allow specific headers
     }
 
-    # Формируем полный URL для YouTube видео
+    # Formulate the full YouTube video URL
     url = "https://www.youtube.com/watch?v=" + url
 
-    # Извлекаем информацию о видео с наилучшим аудио-форматом
-    song_info = yt_dlp.YoutubeDL({'format': 'bestaudio/best', 'verbose': True,'cookiesfrombrowser': ('firefox',)}).extract_info(url, download=False)
+    # Configure yt_dlp with cookies for authentication
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'verbose': True
+    }
 
-    # Перебираем форматы и находим первый подходящий для браузера
-    _url = None
-    for fmt in song_info['formats']:
-        # Используем get() с значениями по умолчанию
-        acodec = fmt.get('acodec', 'none')
-        vcodec = fmt.get('vcodec', 'none')
-        ext = fmt.get('ext', '')
+    try:
+        # Extract video information
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            song_info = ydl.extract_info(url, download=False)
 
-        # Проверяем, что есть аудио- и видео-кодек (или только аудио для mp3/аудио)
-        if acodec != 'none' and (vcodec == 'none' or ext in ['mp4', 'webm']):
-            _url = fmt['url']
-            break  # Останавливаем поиск на первом найденном формате
+        # Find the first playable format
+        _url = None
+        for fmt in song_info['formats']:
+            acodec = fmt.get('acodec', 'none')
+            vcodec = fmt.get('vcodec', 'none')
+            ext = fmt.get('ext', '')
 
-    if _url:
-        return JSONResponse({"url": _url}, headers=headers)
-    else:
-        return JSONResponse({"error": "No playable format found"}, headers=headers)
+            if acodec != 'none' and (vcodec == 'none' or ext in ['mp4', 'webm']):
+                _url = fmt['url']
+                break
+
+        if _url:
+            return JSONResponse({"url": _url}, headers=headers)
+        else:
+            return JSONResponse({"error": "No playable format found"}, headers=headers)
+    except yt_dlp.utils.DownloadError as e:
+        return JSONResponse({"error": str(e)}, headers=headers)
 
 
 @app.get("/GetChart")
